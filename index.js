@@ -37,8 +37,9 @@ const User = mongoose.model('user',userSchema);
 
 
 app.route('/api/users')
-.get((req,res)=>{
-    res.json(users); 
+.get(async(req,res)=>{
+    const data = await User.find({}); 
+    return res.json(data);
 })
 .post( async (req,res)=>{
     const body = req.body; 
@@ -57,28 +58,33 @@ app.route('/api/users')
 
     return res.status(201).json({status:'success', id:result._id}); 
 })
-.patch((req,res)=>{
+.patch(async(req,res)=>{
     const body = req.body; 
     const id = body.id; 
-    const index = users.findIndex(user=>user.id == id); 
-    if(index == -1){
-        return res.json({status:'error', message:'user not found'}); 
-    }
-    users[index] = {...users[index], ...body}; 
-    fs.writeFile('./MOCK_DATA.json', JSON.stringify(users),(err,data)=>{
-        return res.json({status : 'success', id:id}); 
-    })
+    // const index = users.findIndex(user=>user.id == id); 
+    // if(index == -1){
+    //     return res.json({status:'error', message:'user not found'}); 
+    // }
+    // users[index] = {...users[index], ...body}; 
+    // fs.writeFile('./MOCK_DATA.json', JSON.stringify(users),(err,data)=>{
+    //     return res.json({status : 'success', id:id}); 
+    // })
+    const user = await User.findByIdAndUpdate(req.params.id, {lastName:'changed'}); 
+    return res.json({status:'success', id:user._id});
 })
-.delete((req,res)=>{
+.delete(async(req,res)=>{
     const id = req.body.id; 
     const index = users.findIndex(user=>user.id == id); 
-    if(index == -1){
-        return res.json({status:'error', message:'user not found'}); 
-    }
-    users.splice(index,1); 
-    fs.writeFile('./MOCK_DATA.json', JSON.stringify(users),(err,data)=>{
-        return res.json({status : 'success', id:id}); 
-    })
+    // if(index == -1){
+    //     return res.json({status:'error', message:'user not found'}); 
+    // }
+    // users.splice(index,1); 
+    // fs.writeFile('./MOCK_DATA.json', JSON.stringify(users),(err,data)=>{
+    //     return res.json({status : 'success', id:id}); 
+    // })
+    const result = await User.findByIdAndDelete(req.params.id); 
+    return res.json({status:'success', id:result._id});
+
 })
 
 app.get('/api/users/:id',(req,res)=>{
