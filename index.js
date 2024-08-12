@@ -57,43 +57,27 @@ app.route('/api/users')
     }); 
 
     return res.status(201).json({status:'success', id:result._id}); 
-})
-.patch(async(req,res)=>{
-    const body = req.body; 
-    const id = body.id; 
-    // const index = users.findIndex(user=>user.id == id); 
-    // if(index == -1){
-    //     return res.json({status:'error', message:'user not found'}); 
-    // }
-    // users[index] = {...users[index], ...body}; 
-    // fs.writeFile('./MOCK_DATA.json', JSON.stringify(users),(err,data)=>{
-    //     return res.json({status : 'success', id:id}); 
-    // })
-    const user = await User.findByIdAndUpdate(req.params.id, {lastName:'changed'}); 
-    return res.json({status:'success', id:user._id});
-})
-.delete(async(req,res)=>{
-    const id = req.body.id; 
-    const index = users.findIndex(user=>user.id == id); 
-    // if(index == -1){
-    //     return res.json({status:'error', message:'user not found'}); 
-    // }
-    // users.splice(index,1); 
-    // fs.writeFile('./MOCK_DATA.json', JSON.stringify(users),(err,data)=>{
-    //     return res.json({status : 'success', id:id}); 
-    // })
-    const result = await User.findByIdAndDelete(req.params.id); 
-    return res.json({status:'success', id:result._id});
+}); 
 
-})
-
-app.get('/api/users/:id',(req,res)=>{
-    const id = req.params.id; 
-    const user = users.find(user=>user.id === parseInt(id)); 
+app.route('/api/users/:id')
+.get(async (req,res)=>{
+    const user = await User.findById(req.params.id);
     if(user){
         return res.json(user); 
     }
+    else {
+        return res.status(404).json({status:'error', message:'user not found'});    
+    }
 })
+.patch(async(req,res)=>{
+    const id = req.params.id; 
+    await User.findByIdAndUpdate(id, {lastName:'changed'}); 
+})
+.delete(async(req,res)=>{
+    const id = req.params.id; 
+    await User.findByIdAndDelete(id); 
+    return res.json({status:'success', message:'user deleted successfully'}); 
+});
 
 
 
