@@ -29,7 +29,8 @@ const userSchema = new mongoose.Schema({
     gender:{
         type:String
     }
-}); 
+    
+},{timestamps:true}); 
 
 const User = mongoose.model('user',userSchema); 
 
@@ -39,14 +40,22 @@ app.route('/api/users')
 .get((req,res)=>{
     res.json(users); 
 })
-.post((req,res)=>{
+.post( async (req,res)=>{
     const body = req.body; 
-    users.push({...body, id:users.length+1});
+    // users.push({...body, id:users.length+1});
 
-    fs.writeFile('./MOCK_DATA.json', JSON.stringify(users),(err,data)=>{
-        return res.json({status : 'success', id:users.length}); 
-    })
+    // fs.writeFile('./MOCK_DATA.json', JSON.stringify(users),(err,data)=>{
+    //     return res.json({status : 'success', id:users.length}); 
+    // })
+    const result = await User.create({
+        firstName:body.firstName, 
+        lastName:body.lastName,
+        email:body.email,
+        jobTitle:body.jobTitle, 
+        gender:body.gender
+    }); 
 
+    return res.status(201).json({status:'success', id:result._id}); 
 })
 .patch((req,res)=>{
     const body = req.body; 
